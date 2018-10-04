@@ -1,5 +1,7 @@
 # simple-thesaurus
 
+This is a thesaurus that suggests only the top 1000 most common English words. Based on [a blog post by Morten Just](https://medium.com/@mortenjust/sentenced-to-rewriting-7c8bf45680b5), who thinks that it is a poor idea. (I agree.) Uses [Moby Thesaurus](https://en.wikipedia.org/wiki/Moby_Project) and [Peter Norvig's word lists](https://norvig.com/ngrams/) that are derived from Google Web Trillion Word Corpus. Implemented in [Reason](https://reasonml.github.io/) and styled with [Tachyons](http://tachyons.io/). Built to try out these two technologies.
+
 ## Run Project
 
 ```sh
@@ -8,10 +10,6 @@ npm start
 # in another tab
 npm run webpack
 ```
-
-After you see the webpack compilation succeed (the `npm run webpack` step), open up `src/index.html` (**no server needed!**). Then modify whichever `.re` file in `src` and refresh the page to see the changes.
-
-**For more elaborate ReasonReact examples**, please see https://github.com/reasonml-community/reason-react-example
 
 ## Build for Production
 

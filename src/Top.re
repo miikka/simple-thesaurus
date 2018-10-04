@@ -1,69 +1,41 @@
-module StringSet = Set.Make(String);
-
 type action =
   | DataLoaded(Js.Dict.t(array(string)))
-  | TopWordsLoaded(StringSet.t)
   | ChangeQuery(string);
 
 type state = {
   thesaurus: option(Js.Dict.t(array(string))),
-  topwords: option(StringSet.t),
   query: string,
 };
 
 let component = ReasonReact.reducerComponent("Top");
 
+external perfectlySafeCoerce: 'a => 'b = "%identity";
+
 let make = _children => {
   ...component,
-  initialState: () => {query: "", topwords: None, thesaurus: None},
+  initialState: () => {query: "", thesaurus: None},
   reducer: (action, state) =>
     switch (action) {
     | DataLoaded(data) =>
       ReasonReact.Update({...state, thesaurus: Some(data)})
-    | TopWordsLoaded(data) =>
-      ReasonReact.Update({...state, topwords: Some(data)})
     | ChangeQuery(text) => ReasonReact.Update({...state, query: text})
     },
-  didMount: ({send}) => {
+  didMount: ({send}) =>
     Js.Promise.(
-      Fetch.fetch("/data/mthesaur.txt")
-      |> then_(Fetch.Response.text)
-      |> then_(text => {
-           let lines = Js.String.split("\n", text);
-           let words = Array.map(line => Js.String.split(",", line), lines);
-           let dict = Js.Dict.empty();
-           Array.iter(
-             word_line => {
-               let head = word_line[0];
-               let tail =
-                 Array.sub(word_line, 1, Array.length(word_line) - 1);
-               Js.Dict.set(dict, head, tail);
-             },
-             words,
-           );
-           send(DataLoaded(dict)) |> resolve;
-         })
+      Fetch.fetch("/data/thesaurus.json")
+      |> then_(Fetch.Response.json)
+      |> then_(dict =>
+           send(DataLoaded(perfectlySafeCoerce(dict))) |> resolve
+         )
     )
-    |> ignore;
-    Js.Promise.(
-      Fetch.fetch("/data/words1000.txt")
-      |> then_(Fetch.Response.text)
-      |> then_(text => {
-           let lines = Js.String.split("\n", text);
-           let wordset = StringSet.of_list(Array.to_list(lines));
-           send(TopWordsLoaded(wordset));
-           resolve();
-         })
-    )
-    |> ignore;
-  },
+    |> ignore,
   render: ({send, state}) =>
     switch (state.thesaurus) {
     | None => <div> {ReasonReact.string("Loading...")} </div>
     | Some(data) =>
       let words = Js.Dict.get(data, state.query);
-      <div className="cf">
-        <div className="fl w-third measure">
+      <>
+        <div className="fl w-third-ns w-100 measure">
           /* <label> should have for="" but Reason does not allow it. */
 
             <label className="f6 b db mb2">
@@ -80,24 +52,18 @@ let make = _children => {
               )
             />
           </div>
-        <div className="fl f3 w-two-thirds ph4 lh-copy">
+        <div className="fl f3 w-two-thirds-ns w-100 ph4 lh-copy">
           {
             switch (words) {
-            | None => ReasonReact.string("No synonyms found!")
+            | None =>
+              <span className="black-60">
+                {ReasonReact.string("No synonyms found!")}
+              </span>
             | Some(synonyms) =>
-              switch (state.topwords) {
-              | None => ReasonReact.string(Js.Array.joinWith(", ", synonyms))
-              | Some(topwords) =>
-                let filtered =
-                  Js.Array.filter(
-                    word => StringSet.mem(word, topwords),
-                    synonyms,
-                  );
-                ReasonReact.string(Js.Array.joinWith(", ", filtered));
-              }
+              ReasonReact.string(Js.Array.joinWith(", ", synonyms))
             }
           }
         </div>
-      </div>;
+      </>;
     },
 };

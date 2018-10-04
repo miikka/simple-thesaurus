@@ -8,11 +8,22 @@
   <link rel="stylesheet" href="https://unpkg.com/tachyons@4.10.0/css/tachyons.min.css" />
 </head>
 
-<body class="sans-serif w-100 ph5">
+<body class="sans-serif w-100 ph5-ns ph4">
 
   <h1 class="f1 lh-title">Simple Thesaurus</h1>
 
-  <div id="root"></div>
+  <div class="cf h5" id="root"></div>
+
+  <footer class="fl w-third-ns w-100 pt4">
+    <p class="f6 black-60 measure">
+      This is a thesaurus that suggests only the top 1000 most common English words.
+      Based on <a href="https://medium.com/@mortenjust/sentenced-to-rewriting-7c8bf45680b5">a blog post by Morten Just</a>,
+      who thinks that it is a poor idea. (I agree.) Uses <a href="https://en.wikipedia.org/wiki/Moby_Project">Moby Thesaurus</a>
+      and <a href="https://norvig.com/ngrams/">Peter Norvig's word lists</a> that are derived from Google Web Trillion Word Corpus.
+      Implemented in <a href="https://reasonml.github.io/">Reason</a> and styled with <a href="http://tachyons.io/">Tachyons</a>. Built
+      to try out these two technologies.
+    </p>
+  </footer>
 
   <script src="../build/Index.js"></script>
 </body>
